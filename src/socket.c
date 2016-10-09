@@ -410,7 +410,7 @@ int socket_init(struct wireguard_device *wg)
 	
 	if(wg->incoming_addr.ss_family == AF_INET || wg->incoming_addr.ss_family == 0){
 		if(wg->incoming_addr.ss_family == AF_INET){
-			port4.local_ip.s_addr = ((struct sockaddr_in *)&wg->incoming_addr)->sin_addr;
+			port4.local_ip.s_addr = *(__be32*)&((struct sockaddr_in *)&wg->incoming_addr)->sin_addr;
 		}
 		ret = udp_sock_create(wg->creating_net, &port4, &new4);
 		if (ret < 0) {
