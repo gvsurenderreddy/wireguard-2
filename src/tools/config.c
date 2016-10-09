@@ -291,7 +291,7 @@ static bool process_line(struct config_ctx *ctx, const char *line)
 
 	if (ctx->is_device_section) {
 		if (key_match("ListenIp"))
-			ret = parse_endpoint(ctx->buf.dev->ip, value);
+			ret = parse_endpoint(&ctx->buf.dev->ip, value);
 		else if (key_match("ListenPort"))
 			ret = !!(ctx->buf.dev->port = parse_port(value));
 		else if (key_match("PrivateKey")) {
