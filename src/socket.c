@@ -410,7 +410,7 @@ int socket_init(struct wireguard_device *wg)
 	
 	if(wg->incoming_addr.ss_family == AF_INET || wg->incoming_addr.ss_family == 0){
 		if(wg->incoming_addr.ss_family == AF_INET){
-			port4.local_ip.s_addr = ((struct sockaddr_in *)peer_addr)->sin_addr;
+			port4.local_ip.s_addr = ((struct sockaddr_in *)wg->incoming_addr)->sin_addr;
 		}
 		ret = udp_sock_create(wg->creating_net, &port4, &new4);
 		if (ret < 0) {
@@ -426,7 +426,7 @@ int socket_init(struct wireguard_device *wg)
 #if IS_ENABLED(CONFIG_IPV6)
 	if(wg->incoming_addr.ss_family == AF_INET6 || wg->incoming_addr.ss_family == 0){
 		if(wg->incoming_addr.ss_family == AF_INET6){
-			port6.local_ip6 = ((struct sockaddr_in6 *)peer_addr)->sin6_addr;
+			port6.local_ip6 = ((struct sockaddr_in6 *)wg->incoming_addr)->sin6_addr;
 		}		
 		ret = udp_sock_create(wg->creating_net, &port6, &new6);
 		if (ret < 0) {
