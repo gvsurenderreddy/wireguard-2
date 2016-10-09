@@ -43,6 +43,21 @@ int showconf_main(int argc, char *argv[])
 	}
 
 	printf("[Interface]\n");
+	if (device->ip.ss_family == AF_INET || device->ip.ss_family == AF_INET6) {
+		char host[4096 + 1];
+		char service[512 + 1];
+		static char buf[sizeof(host) + sizeof(service) + 4];
+		socklen_t addr_len = 0;
+		memset(buf, 0, sizeof(buf));
+		if (device->ip.ss_family == AF_INET)
+			addr_len = sizeof(struct sockaddr_in);
+		else if (device->ip.ss_family == AF_INET6)
+			addr_len = sizeof(struct sockaddr_in6);
+		if (!getnameinfo((struct sockaddr *)&device->ip, addr_len, host, sizeof(host), service, sizeof(service), NI_DGRAM | NI_NUMERICSERV | NI_NUMERICHOST)) {
+			snprintf(buf, sizeof(buf) - 1, (device->ip.ss_family == AF_INET6 && strchr(host, ':')) ? "[%s]:%s" : "%s:%s", host, service);
+			printf("ListenIp = %s\n", buf);
+		}
+	}
 	if (device->port)
 		printf("ListenPort = %d\n", device->port);
 	if (memcmp(device->private_key, zero, WG_KEY_LEN)) {

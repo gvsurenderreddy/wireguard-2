@@ -18,6 +18,7 @@
 struct wireguard_device {
 	struct sock __rcu *sock4, *sock6;
 	u16 incoming_port;
+	struct sockaddr_storage incoming_addr;
 	struct net *creating_net;
 	struct workqueue_struct *workqueue;
 	struct workqueue_struct *parallelqueue;

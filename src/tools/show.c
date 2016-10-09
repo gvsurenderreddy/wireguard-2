@@ -216,6 +216,8 @@ static void pretty_print(struct wgdevice *device)
 		terminal_printf("  " TERMINAL_BOLD "private key" TERMINAL_RESET ": %s\n", masked_key(device->private_key));
 	if (memcmp(device->preshared_key, zero, WG_KEY_LEN))
 		terminal_printf("  " TERMINAL_BOLD "pre-shared key" TERMINAL_RESET ": %s\n", masked_key(device->preshared_key));
+	if (device->ip.ss_family == AF_INET || device->ip.ss_family == AF_INET6)
+		terminal_printf("  " TERMINAL_BOLD "listening ip" TERMINAL_RESET ": %s\n", endpoint(&device->ip));
 	if (device->port)
 		terminal_printf("  " TERMINAL_BOLD "listening port" TERMINAL_RESET ": %u\n", device->port);
 	if (device->num_peers) {

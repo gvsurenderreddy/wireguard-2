@@ -407,27 +407,38 @@ int socket_init(struct wireguard_device *wg)
 #endif
 		htons(wg->incoming_port);
 
-	ret = udp_sock_create(wg->creating_net, &port4, &new4);
-	if (ret < 0) {
-		pr_err("Could not create IPv4 socket\n");
-		goto out;
-	}
+	
+	if(wg->incoming_addr.ss_family == AF_INET || wg->incoming_addr.ss_family == 0){
+		if(wg->incoming_addr.ss_family == AF_INET){
+			port4.local_ip.s_addr = ((struct sockaddr_in *)peer_addr)->sin_addr;
+		}
+		ret = udp_sock_create(wg->creating_net, &port4, &new4);
+		if (ret < 0) {
+			pr_err("Could not create IPv4 socket\n");
+			goto out;
+		}
 
-	set_sock_opts(new4);
-	setup_udp_tunnel_sock(wg->creating_net, new4, &cfg);
-	rcu_assign_pointer(wg->sock4, new4->sk);
+		set_sock_opts(new4);
+		setup_udp_tunnel_sock(wg->creating_net, new4, &cfg);
+		rcu_assign_pointer(wg->sock4, new4->sk);
+	}
 
 #if IS_ENABLED(CONFIG_IPV6)
-	ret = udp_sock_create(wg->creating_net, &port6, &new6);
-	if (ret < 0) {
-		pr_err("Could not create IPv6 socket\n");
-		udp_tunnel_sock_release(new4);
-		rcu_assign_pointer(wg->sock4, NULL);
-		goto out;
+	if(wg->incoming_addr.ss_family == AF_INET6 || wg->incoming_addr.ss_family == 0){
+		if(wg->incoming_addr.ss_family == AF_INET6){
+			port6.local_ip6 = ((struct sockaddr_in6 *)peer_addr)->sin6_addr;
+		}		
+		ret = udp_sock_create(wg->creating_net, &port6, &new6);
+		if (ret < 0) {
+			pr_err("Could not create IPv6 socket\n");
+			udp_tunnel_sock_release(new4);
+			rcu_assign_pointer(wg->sock4, NULL);
+			goto out;
+		}
+		set_sock_opts(new6);
+		setup_udp_tunnel_sock(wg->creating_net, new6, &cfg);
+		rcu_assign_pointer(wg->sock6, new6->sk);
 	}
-	set_sock_opts(new6);
-	setup_udp_tunnel_sock(wg->creating_net, new6, &cfg);
-	rcu_assign_pointer(wg->sock6, new6->sk);
 #endif
 
 out:

@@ -118,6 +118,7 @@ struct wgdevice {
 	__u8 preshared_key[WG_KEY_LEN]; /* Get/Set */
 
 	__u16 port; /* Get/Set */
+	struct sockaddr_storage ip; /* Get/Set */
 
 	__u32 replace_peer_list : 1; /* Set */
 	__u32 remove_private_key : 1; /* Set */

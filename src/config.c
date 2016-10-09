@@ -292,6 +292,8 @@ int config_get_device(struct wireguard_device *wg, void __user *udevice)
 	}
 
 	out_device.port = wg->incoming_port;
+	out_device.ip = wg->incoming_addr;
+	
 	strncpy(out_device.interface, dev->name, IFNAMSIZ - 1);
 	out_device.interface[IFNAMSIZ - 1] = 0;
 

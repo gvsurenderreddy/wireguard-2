@@ -290,7 +290,9 @@ static bool process_line(struct config_ctx *ctx, const char *line)
 #define key_match(key) (value = get_value(line, key "="))
 
 	if (ctx->is_device_section) {
-		if (key_match("ListenPort"))
+		if (key_match("ListenIp"))
+			ret = parse_endpoint(ctx->buf.dev->ip, value);
+		else if (key_match("ListenPort"))
 			ret = !!(ctx->buf.dev->port = parse_port(value));
 		else if (key_match("PrivateKey")) {
 			ret = parse_key(ctx->buf.dev->private_key, value);
@@ -457,7 +459,12 @@ bool config_read_cmd(struct wgdevice **device, char *argv[], int argc)
 		return false;
 	}
 	while (argc > 0) {
-		if (!strcmp(argv[0], "listen-port") && argc >= 2 && !buf.dev->num_peers) {
+		if (!strcmp(argv[0], "listen-ip") && argc >= 2 && !buf.dev->num_peers) {
+			if (!parse_endpoint(&buf.dev->ip, argv[1]))
+				goto error;
+			argv += 2;
+			argc -= 2;
+		} else if (!strcmp(argv[0], "listen-port") && argc >= 2 && !buf.dev->num_peers) {
 			buf.dev->port = parse_port(argv[1]);
 			if (!buf.dev->port)
 				goto error;
